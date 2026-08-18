@@ -1,8 +1,25 @@
-# Arquivos temporários do Python e Jupyter
-.ipynb_checkpoints/
+# Byte-compiled / cache de execução
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
 
-# Arquivos de sistema
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Modelos treinados e binários serializados
+*.pkl
+*.joblib
+*.pickle
+models/
+
+# Dados locais
+data/*.csv
+data/*.xlsx
+data/*.parquet
+
+# Arquivos do sistema
 .DS_Store
 Thumbs.db
