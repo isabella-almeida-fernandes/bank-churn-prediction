@@ -1,68 +1,123 @@
-# Previsão de Churn Bancário: Pipeline de Machine Learning
+# 🏦 Previsão de Churn Bancário: Pipeline Completo de Machine Learning
 
-Este projeto foi desenvolvido de forma colaborativa como trabalho de conclusão do Bootcamp de Ciência de Dados Avanti `2026.1`. O objetivo principal foi analisar o comportamento de 10.000 clientes de uma instituição bancária e construir um pipeline preditivo capaz de identificar clientes propensos ao *churn* (cancelamento de conta), permitindo que o banco tome ações preventivas de retenção.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E.svg?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Pandas](https://img.shields.io/badge/pandas-150458.svg?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Status](https://img.shields.io/badge/Status-Concluído-success.svg)]()
+
+> Projeto prático de Ciência de Dados e Machine Learning desenvolvido durante o **Bootcamp de Ciência de Dados Atlântico Avanti (2026.1)**. O objetivo é analisar o comportamento de 10.000 clientes de uma instituição financeira e construir um pipeline preditivo robusto para identificar precocemente o risco de *churn* (evasão de clientes), subsidiando estratégias orientadas a dados para retenção e redução de perdas financeiras.
+
+---
+
+## 📁 Estrutura do Repositório
+
+```text
+├── data/
+│   └── README.md                               # Descrição do dataset e instruções de download
+├── notebooks/
+│   ├── 01_analise_exploratoria_de_dados.ipynb  # EDA, análise estatística e PCA
+│   └── 02_analise_comparativa_de_modelos.ipynb # Pré-processamento, validação, tuning e exportação
+├── .gitignore                                  # Arquivos e pastas ignorados pelo Git
+├── README.md                                   # Documentação principal do projeto
+└── requirements.txt                            # Bibliotecas e versões necessárias para reprodução
+```
 
 ---
 
 ## 🔍 1. Principais Insights da Análise Exploratória (EDA)
 
-A análise dos dados gerou insights fundamentais para a estratégia de negócio:
+A análise exploratória detalhada no primeiro notebook revelou padrões determinantes para o negócio:
 
-* **Fator Etário Crítico:** A idade apresentou a maior correlação linear positiva com o churn (0.29). O risco de evasão escala substancialmente na faixa etária entre **40 e 60 anos** (mediana de churn em 45 anos, contra 36 anos dos clientes retidos).
-* **Anomalia Geográfica:** Enquanto França e Espanha mantêm taxas de saída abaixo da média global (20,4%), a **Alemanha apresenta uma taxa alarmante superior a 30%**, indicando um problema severo localizado nesse mercado.
-* **O Paradoxo dos Produtos:** A relação entre o número de produtos e o churn é não-linear:
-  * **1 Produto:** Risco de churn elevado.
-  * **2 Produtos:** Ponto ótimo de engajamento e altíssima fidelidade.
-  * **3 ou 4 Produtos:** Evasão próxima a 100%, sinalizando forte insatisfação ou ofertas inadequadas.
-* **Perda de Capital:** O churn concentra-se em clientes com **saldo positivo e elevado**. Contas zeradas apresentam maior retenção, o que indica que o banco está perdendo seus clientes de maior valor financeiro.
-* **Redução de Dimensionalidade (PCA):** A aplicação de Análise de Componentes Principais demonstrou alta sobreposição linear entre as classes (clientes ativos vs. churn), indicando a necessidade de modelos não-lineares capazes de capturar fronteiras de decisão complexas.
-
----
-
-## 🛠️ 2. Engenharia de Recursos & Pré-processamento
-
-Para preparar os dados para os algoritmos de Machine Learning, estabelecemos o seguinte fluxo de tratamento:
-1. **Seleção de Variáveis:** Remoção de identificadores irrelevantes (`RowNumber`, `CustomerId`, `Surname`).
-2. **Tratamento de Dados Faltantes:** Embora a base estivesse completa, o pipeline foi estruturado preventivamente utilizando `SimpleImputer` com estratégia de **mediana** para variáveis numéricas e **moda (most frequent)** para categóricas.
-3. **Codificação Categórica:** Transformação de variáveis nominais (como `Geography` e `Gender`) utilizando técnicas de binarização (`pd.get_dummies`).
-4. **Escalonamento:** Aplicação do `MinMaxScaler` nas variáveis quantitativas para normalizar os dados no intervalo entre 0 e 1, garantindo o bom desempenho de algoritmos baseados em distância (como o kNN).
+* **Fator Etário Crítico:** A idade apresentou a maior correlação linear positiva com o churn ($r = 0.29$). O risco de evasão escala substancialmente na faixa entre **40 e 60 anos** (mediana de churn em 45 anos, contra 36 anos dos clientes retidos).
+* **Anomalia Geográfica:** Enquanto França e Espanha mantêm taxas de evasão abaixo da média global (20,4%), a **Alemanha apresenta uma taxa superior a 30%**, indicando atritos operacionais ou maior pressão competitiva localizada nesse mercado.
+* **O Paradoxo dos Produtos:** A relação entre o número de produtos bancários e o churn é altamente não-linear:
+  * **1 Produto:** Risco de evasão moderado/alto.
+  * **2 Produtos:** Ponto ótimo de engajamento e altíssima taxa de retenção.
+  * **3 ou 4 Produtos:** Evasão próxima a 100%, sinalizando insatisfação severa ou processos de *cross-selling* agressivos e mal calibrados.
+* **Evasão de Alto Valor (Perda de Capital):** O churn concentra-se fortemente em clientes com **saldo positivo e elevado**. Contas com saldo zerado apresentaram menor taxa de saída, demonstrando que o banco está perdendo justamente seus clientes de maior rentabilidade.
+* **Complexidade Não-Linear (PCA):** A análise de componentes principais demonstrou sobreposição linear significativa entre as classes, confirmando a necessidade de algoritmos capazes de mapear fronteiras de decisão não-lineares complexas.
 
 ---
 
-## 📊 3. Modelagem e Validação Cruzada
+## 🛠️ 2. Engenharia de Recursos e Pré-processamento
 
-### Justificativa das Métricas
-O conjunto de dados apresenta um desbalanceamento moderado (20,4% de churn). Por isso, a `acurácia` isolada não é uma métrica confiável. Focamos nossa avaliação em:
-* **Recall (Sensibilidade):** Métrica prioritária para o negócio. É mais crítico para o banco identificar um cliente que vai sair (mesmo que ofereça um incentivo por engano a um cliente estável) do que deixar um cliente de alto valor sair sem intervenção.
-* **F1-Score:** Equilíbrio (média harmônica) entre Precisão e Recall.
-* **ROC-AUC:** Capacidade geral do modelo de diferenciar as duas classes.
+Para garantir consistência e evitar vazamento de dados (*data leakage*), o fluxo de preparação foi estruturado da seguinte forma:
+
+1. **Feature Selection:** Remoção de identificadores e metadados irrelevantes (`RowNumber`, `CustomerId`, `Surname`).
+2. **Tratamento de Dados Faltantes:** Implementação preventiva via `SimpleImputer` com estratégia de **mediana** para variáveis numéricas e **moda (most frequent)** para categóricas.
+3. **Codificação Categórica:** Transformação de variáveis nominais (`Geography` e `Gender`) utilizando One-Hot Encoding (`pd.get_dummies(drop_first=True)`).
+4. **Escalonamento de Features:** Normalização com `MinMaxScaler` nas variáveis quantitativas contínuas e discretas para padronização no intervalo $[0, 1]$.
+
+---
+
+## 📊 3. Metodologia de Modelagem e Validação
+
+### Justificativa das Métricas de Avaliação
+Devido ao desbalanceamento das classes (~20% de churn e ~80% de retenção), a **Acurácia** foi descartada como critério isolado de decisão[cite: 1]. A avaliação priorizou:
+* **Recall (Sensibilidade):** Métrica primordial do negócio. Para a instituição, o custo de não identificar um cliente que vai cancelar (falso negativo) é muito superior ao custo de uma ação preventiva direcionada a um cliente que permaneceria (falso positivo)[cite: 1].
+* **F1-Score:** Equilíbrio harmônico entre Precisão e Recall da classe minoritária (`Exited = 1`)[cite: 1].
+* **ROC-AUC:** Medida global da capacidade do modelo de distinguir clientes propensos vs. não propensos ao churn[cite: 1].
 
 ### Estratégia de Validação Cruzada
-Para garantir que os modelos não sofressem de *overfitting*, adotamos duas estratégias complementares de validação:
-1. **Stratified K-Fold (10 divisões):** Garante que a proporção de 20% de churn seja mantida rigidamente em cada dobra de treino e teste.
-2. **Validação Cruzada de Monte Carlo (ShuffleSplit com 30 repetições):** Testa a estabilidade dos modelos simulando 30 divisões aleatórias diferentes da base (70% treino / 30% teste).
+Para atestar a estabilidade e capacidade de generalização dos modelos, foram adotadas duas abordagens:
+1. **Stratified 10-Fold CV:** Divisão em 10 dobras preservando rigidamente a proporção de 20% da classe positiva em cada partição[cite: 1].
+2. **Monte Carlo Cross-Validation (`ShuffleSplit`):** 30 iterações com divisão aleatória (70% treino / 30% teste) para avaliar a variância das métricas[cite: 1].
 
 ---
 
-## 📈 4. Resultados Analíticos
+## 📈 4. Resultados Analíticos e Comparativo de Modelos
 
-Quatro algoritmos de diferentes famílias matemáticas foram testados para mapear o comportamento dos dados. Os resultados médios consolidados nas validações foram:
+Quatro modelos de diferentes famílias matemáticas foram submetidos aos mesmos critérios de validação[cite: 1]:
 
 | Modelo | Acurácia Média | Recall Médio | F1-Score Médio | ROC-AUC Média |
 | :--- | :---: | :---: | :---: | :---: |
-| **Dummy Classifier (Baseline)** | ~79.6% | 0.0% | 0.0% | 0.500 |
-| **Regressão Logística** | ~80.9% | ~23.8% | ~33.8% | ~0.771 |
-| **K-Nearest Neighbors (kNN)** | ~81.7% | ~31.8% | ~41.3% | ~0.743 |
-| **Random Forest (Balanced)** | **~85.8%** | **~48.1%** | **~57.9%** | **~0.852** |
+| **Dummy Classifier (Baseline)** | 79.63% | 0.00% | 0.00% | 0.5000 |
+| **Regressão Logística** | 81.08% | 20.32% | 30.41% | 0.7653 |
+| **K-Nearest Neighbors (kNN)** | 81.43% | 31.47% | 40.66% | 0.7446 |
+| **Random Forest (Class Balanced)** | **85.97%** | **44.68%** | **56.40%** | **0.8546** |
 
-### Conclusão Técnica
-Como previsto na análise multivariada (PCA), os modelos lineares (`Regressão Logística`) e baseados estritamente em distância espacial (`kNN`) falharam em capturar as regras complexas de negócio, entregando um Recall muito baixo. 
+## ⚙️ 5. Otimização de Hiperparâmetros e Avaliação Final
 
-O modelo **Random Forest**, configurado com peso de classe balanceado (`class_weight='balanced'`), apresentou o **melhor desempenho geral em todas as métricas**, alcançando uma **ROC-AUC de 0.852**. Ele provou ser o mais apto para mapear as não-linearidades do problema, como o comportamento crítico do número de produtos e as particularidades geográficas da Alemanha.
+O modelo **Random Forest** foi selecionado para ajuste fino (*hyperparameter tuning*) via **`RandomizedSearchCV`** (5-Fold Stratificado) otimizando a métrica `F1-Score`.
+
+### Avaliação no Conjunto de Teste Independente (20% Holdout):
+* **ROC-AUC no Teste:** `0.85+`
+* **Melhores Hiperparâmetros:** `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf` e `class_weight='balanced'`.
+
+### Importância das Features (*Feature Importance*):
+As variáveis mais determinantes para as previsões foram:
+1. **`Age` (Idade)**
+2. **`NumOfProducts` (Quantidade de Produtos)**
+3. **`Balance` (Saldo em Conta)**
+4. **`IsActiveMember` (Membro Ativo)**
+5. **`Geography_Germany` (Localização: Alemanha)**
 
 ---
 
-## 👥 Contribuição e Trabalho em Equipe
-Este projeto foi executado em formato de *squad* ágil durante o bootcamp, exercitando metodologias de divisão de tarefas, versionamento de código e discussão de hipóteses de negócio em equipe.
+## 💡 6. Recomendações Práticas para o Negócio
 
-**Tecnologias Utilizadas:** Python, Pandas, NumPy, Scikit-Learn, SciPy, Matplotlib, Seaborn.
+1. **Alerta Preditivo no CRM:** Utilizar as probabilidades preditas (`predict_proba`) para gerar um *Score de Risco de Churn*. Clientes com probabilidade $> 0.50$ devem ser direcionados automaticamente para a fila de atendimento prioritário.
+2. **Plano de Contenção para o Mercado Alemão:** Conduzir auditoria de produto e pesquisa de satisfação focada na Alemanha para compreender os gargalos da operação local.
+3. **Reestruturação do Cross-Selling:** Reformular os pacotes e benefícios para clientes que possuem 3 ou mais produtos, evitando incentivos desalinhados com a jornada do correntista.
+4. **Programa de Ativação para Inativos:** Criar campanhas de reativação para clientes de faixas etárias mais altas com saldo positivo que reduziram sua interação com o banco.
+
+---
+
+## 👥 Equipe e Autores
+
+Projeto desenvolvido de forma colaborativa por:
+
+* **Fábio Agostinho** - [fabinhosnf@gmail.com](mailto:fabinhosnf@gmail.com)
+* **Isabella Almeida** - [isabella4lmeidafernandes@gmail.com](mailto:isabella4lmeidafernandes@gmail.com)
+* **Marcos Felipe Santos** - [marcosfelipessc@alu.ufc.br](mailto:marcosfelipessc@alu.ufc.br)
+* **Maria Souza** - [mariacorreia2505@gmail.com](mailto:mariacorreia2505@gmail.com)
+
+---
+
+## 🛠️ Tecnologias e Bibliotecas Utilizadas
+
+* **Linguagem:** Python 3.10+
+* **Manipulação e Análise de Dados:** Pandas, NumPy
+* **Visualização de Dados:** Matplotlib, Seaborn
+* **Machine Learning & Validação:** Scikit-Learn (Pipelines, Imputer, Scalers, Classifiers, Metrics)
+* **Serialização de Modelos:** Joblib
