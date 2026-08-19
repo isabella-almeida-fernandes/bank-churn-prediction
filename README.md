@@ -53,21 +53,21 @@ Para garantir consistência e evitar vazamento de dados (*data leakage*), o flux
 ## 📊 3. Metodologia de Modelagem e Validação
 
 ### Justificativa das Métricas de Avaliação
-Devido ao desbalanceamento das classes (~20% de churn e ~80% de retenção), a **Acurácia** foi descartada como critério isolado de decisão[cite: 1]. A avaliação priorizou:
-* **Recall (Sensibilidade):** Métrica primordial do negócio. Para a instituição, o custo de não identificar um cliente que vai cancelar (falso negativo) é muito superior ao custo de uma ação preventiva direcionada a um cliente que permaneceria (falso positivo)[cite: 1].
-* **F1-Score:** Equilíbrio harmônico entre Precisão e Recall da classe minoritária (`Exited = 1`)[cite: 1].
-* **ROC-AUC:** Medida global da capacidade do modelo de distinguir clientes propensos vs. não propensos ao churn[cite: 1].
+Devido ao desbalanceamento das classes (~20% de churn e ~80% de retenção), a **Acurácia** foi descartada como critério isolado de decisão. A avaliação priorizou:
+* **Recall (Sensibilidade):** Métrica primordial do negócio. Para a instituição, o custo de não identificar um cliente que vai cancelar (falso negativo) é muito superior ao custo de uma ação preventiva direcionada a um cliente que permaneceria (falso positivo).
+* **F1-Score:** Equilíbrio harmônico entre Precisão e Recall da classe minoritária (`Exited = 1`).
+* **ROC-AUC:** Medida global da capacidade do modelo de distinguir clientes propensos vs. não propensos ao churn.
 
 ### Estratégia de Validação Cruzada
 Para atestar a estabilidade e capacidade de generalização dos modelos, foram adotadas duas abordagens:
-1. **Stratified 10-Fold CV:** Divisão em 10 dobras preservando rigidamente a proporção de 20% da classe positiva em cada partição[cite: 1].
-2. **Monte Carlo Cross-Validation (`ShuffleSplit`):** 30 iterações com divisão aleatória (70% treino / 30% teste) para avaliar a variância das métricas[cite: 1].
+1. **Stratified 10-Fold CV:** Divisão em 10 dobras preservando rigidamente a proporção de 20% da classe positiva em cada partição.
+2. **Monte Carlo Cross-Validation (`ShuffleSplit`):** 30 iterações com divisão aleatória (70% treino / 30% teste) para avaliar a variância das métricas.
 
 ---
 
 ## 📈 4. Resultados Analíticos e Comparativo de Modelos
 
-Quatro modelos de diferentes famílias matemáticas foram submetidos aos mesmos critérios de validação[cite: 1]:
+Quatro modelos de diferentes famílias matemáticas foram submetidos aos mesmos critérios de validação:
 
 | Modelo | Acurácia Média | Recall Médio | F1-Score Médio | ROC-AUC Média |
 | :--- | :---: | :---: | :---: | :---: |
