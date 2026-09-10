@@ -16,10 +16,10 @@
 ├── data/
 │   ├── Churn_Modelling.csv         # Conjunto de dados utilizado
 │   └── README.md                   # Metadados e dicionário das variáveis
-├── notebooks/
-│   └── bank_churn_prediction.ipynb # Notebook unificado (EDA, Pipeline, Tuning e Avaliação)
 ├── models/
 │   └── pipeline_churn_random_forest.pkl # Pipeline serializada (pré-processador + modelo)
+├── notebooks/
+│   └── bank_churn_prediction.ipynb # Notebook unificado (EDA, Pipeline, Tuning e Avaliação)
 ├── .gitignore                      # Arquivos e pastas ignorados pelo Git
 ├── README.md                       # Documentação principal do projeto
 └── requirements.txt                # Dependências do projeto
